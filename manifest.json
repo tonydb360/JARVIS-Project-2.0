@@ -1,0 +1,10 @@
+{
+  "name":"JARVIS 2.0",
+  "short_name":"JARVIS",
+  "description":"Personal AI assistant interface",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#04101a",
+  "theme_color":"#06121c"
+}
