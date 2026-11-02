@@ -1,50 +1,48 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#06121c">
-  <meta name="description" content="JARVIS 2.0 — personal assistant interface">
-  <link rel="manifest" href="./manifest.json">
-  <title>J.A.R.V.I.S. 2.0</title>
-  <style>
-    :root{color-scheme:dark;--cyan:#55eaff;--blue:#1689bd;--bg:#04101a;--panel:rgba(8,30,45,.72);--line:rgba(85,234,255,.28);--muted:#83aab9}
-    *{box-sizing:border-box} body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 35%,#103047 0,#061521 45%,#02080d 100%);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#dffaff;display:flex;align-items:center;justify-content:center;padding:22px}
-    .app{width:min(760px,100%);text-align:center}.top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:.75rem;letter-spacing:.18em}
-    h1{font-weight:300;letter-spacing:.22em;margin:20px 0 4px;font-size:clamp(1.6rem,5vw,2.7rem);text-shadow:0 0 22px #28bce855}h1 span{color:var(--cyan)}.sub{color:var(--muted);letter-spacing:.16em;font-size:.75rem}
-    .reactor{width:min(260px,65vw);aspect-ratio:1;margin:24px auto;position:relative;display:grid;place-items:center}
-    .ring{position:absolute;border:1px solid var(--line);border-radius:50%;inset:5%;box-shadow:0 0 25px #25cfff12,inset 0 0 22px #25cfff10}
-    .ring:before,.ring:after{content:"";position:absolute;border:1px solid #55eaff55;border-radius:50%;inset:12%;border-left-color:transparent;border-right-color:transparent;animation:spin 12s linear infinite}
-    .ring:after{inset:24%;border-color:#1689bd99;border-top-color:transparent;animation-direction:reverse;animation-duration:8s}
-    .core{width:35%;aspect-ratio:1;border-radius:50%;border:2px solid var(--cyan);background:radial-gradient(circle,#8ffaff 0,#20b9e8 24%,#07618d 55%,#031b2a 75%);box-shadow:0 0 22px #39dfff99,0 0 70px #1689bd44}
-    @keyframes spin{to{transform:rotate(360deg}}.status{border:1px solid var(--line);background:var(--panel);padding:14px;border-radius:12px;display:flex;justify-content:center;gap:12px;align-items:center;color:#a8e7f1;font-size:.9rem}
-    .dot{width:8px;height:8px;border-radius:50%;background:#7bffbe;box-shadow:0 0 10px #7bffbe}.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:18px 0}
-    button{background:#082338;border:1px solid #2c9fc5;color:var(--cyan);padding:12px 20px;border-radius:8px;font:inherit;letter-spacing:.06em;cursor:pointer}button:active{background:#10435b}button:focus-visible{outline:2px solid white;outline-offset:3px}
-    .note{color:#6f96a6;font-size:.78rem;line-height:1.5;margin:18px auto;max-width:540px}.foot{margin-top:28px;color:#446878;font-size:.68rem;letter-spacing:.16em}
-    @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important}}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06121c">
+<meta name="description" content="JARVIS 2.0 — personal assistant interface">
+<link rel="manifest" href="./manifest.json">
+<title>J.A.R.V.I.S. 2.0</title>
+<style>
+:root{color-scheme:dark;--cyan:#55eaff;--line:#23556a;--muted:#83aab9}
+*{box-sizing:border-box}body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% 35%,#103047 0,#061521 48%,#02080d 100%);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#dffaff;display:flex;align-items:center;justify-content:center;padding:22px}
+.app{width:min(760px,100%);text-align:center}.top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:.7rem;letter-spacing:.15em}
+h1{font-weight:300;letter-spacing:.2em;margin:20px 0 4px;font-size:clamp(1.6rem,5vw,2.7rem);text-shadow:0 0 22px #28bce855}h1 span{color:var(--cyan)}.sub{color:var(--muted);letter-spacing:.13em;font-size:.72rem}
+.reactor{width:min(230px,58vw);aspect-ratio:1;margin:22px auto;position:relative;display:grid;place-items:center}.ring{position:absolute;border:1px solid #55eaff38;border-radius:50%;inset:5%;box-shadow:0 0 25px #25cfff12,inset 0 0 22px #25cfff10}.ring:before,.ring:after{content:"";position:absolute;border:1px solid #55eaff55;border-radius:50%;inset:12%;border-left-color:transparent;border-right-color:transparent;animation:spin 12s linear infinite}.ring:after{inset:24%;border-color:#1689bd99;border-top-color:transparent;animation-direction:reverse;animation-duration:8s}.core{width:35%;aspect-ratio:1;border-radius:50%;border:2px solid var(--cyan);background:radial-gradient(circle,#8ffaff 0,#20b9e8 24%,#07618d 55%,#031b2a 75%);box-shadow:0 0 22px #39dfff99,0 0 70px #1689bd44}
+@keyframes spin{to{transform:rotate(360deg)}}.status{border:1px solid #23556a;background:#081e2dbb;padding:12px;border-radius:10px;display:flex;justify-content:center;gap:12px;align-items:center;color:#a8e7f1;font-size:.85rem}.dot{width:8px;height:8px;border-radius:50%;background:#7bffbe;box-shadow:0 0 10px #7bffbe}.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px 0}button{background:#082338;border:1px solid #2c9fc5;color:var(--cyan);padding:12px 18px;border-radius:8px;font:inherit;font-size:.9rem;letter-spacing:.06em;cursor:pointer}button:active{background:#10435b}button:focus-visible{outline:2px solid white;outline-offset:3px}button[disabled]{opacity:.55;cursor:wait}.note{color:#91b4c1;font-size:.86rem;line-height:1.5;margin:16px auto;max-width:540px;min-height:2.5em}.foot{margin-top:24px;color:#446878;font-size:.65rem;letter-spacing:.14em}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important}}
+</style>
 </head>
-<body>
-  <main class="app">
-    <div class="top"><span>PERSONAL AI INTERFACE</span><span>BUILD 2.0.0</span></div>
-    <h1>J.A.R.V.I.S. <span>2.0</span></h1>
-    <div class="sub">JUST A RATHER VERY INTELLIGENT SYSTEM</div>
-    <div class="reactor" aria-label="Animated blue reactor"><div class="ring"></div><div class="core"></div></div>
-    <div class="status"><span class="dot"></span><span id="status">SYSTEM ONLINE · INTERFACE READY</span></div>
-    <div class="actions"><button id="voice" type="button">TEST VOICE</button><button id="about" type="button">SYSTEM INFO</button></div>
-    <p class="note" id="message">JARVIS 2.0 is taking shape. Voice and AI services will be connected in later stages.</p>
-    <div class="foot">DESIGNED FOR YOUR DEVICE · PWA FOUNDATION</div>
-  </main>
+<body><main class="app">
+<div class="top"><span>PERSONAL AI INTERFACE</span><span>BUILD 2.0.1</span></div>
+<h1>J.A.R.V.I.S. <span>2.0</span></h1><div class="sub">JUST A RATHER VERY INTELLIGENT SYSTEM</div>
+<div class="reactor" aria-label="Animated blue reactor"><div class="ring"></div><div class="core"></div></div>
+<div class="status"><span class="dot" id="dot"></span><span id="status" aria-live="polite">SYSTEM ONLINE · READY</span></div>
+<div class="actions"><button id="talk" type="button">🎙 TALK TO JARVIS</button><button id="voice" type="button">TEST VOICE</button><button id="about" type="button">SYSTEM INFO</button></div>
+<p class="note" id="message" aria-live="polite">Voice prototype: try saying “Hello JARVIS”, “What time is it?”, or “What can you do?”</p>
+<div class="foot">DESIGNED FOR YOUR DEVICE · PWA FOUNDATION</div>
+</main>
 <script>
-  const status=document.querySelector("#status"),message=document.querySelector("#message");
-  document.querySelector("#voice").addEventListener("click",()=>{
-    if(!("speechSynthesis" in window)){message.textContent="Speech synthesis is not supported in this browser.";return}
-    speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance("Hello. JARVIS interface is online.");
-    utterance.rate=.92;utterance.pitch=.85;speechSynthesis.speak(utterance);status.textContent="VOICE TEST IN PROGRESS";
-    utterance.onend=()=>status.textContent="SYSTEM ONLINE · INTERFACE READY";
-  });
-  document.querySelector("#about").addEventListener("click",()=>message.textContent="Version 2.0 foundation: installable web app shell, responsive interface, and device speech test. AI connection is not configured yet.");
-  if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
-</script>
-</body>
-</html>
+const status=document.querySelector("#status"),message=document.querySelector("#message"),talk=document.querySelector("#talk"),dot=document.querySelector("#dot");
+function speak(text){if(!("speechSynthesis"in window)){message.textContent=text;return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=.94;u.pitch=.82;u.onstart=()=>status.textContent="JARVIS SPEAKING";u.onend=()=>{status.textContent="SYSTEM ONLINE · READY";dot.style.background="#7bffbe"};speechSynthesis.speak(u);message.textContent=text}
+function reply(raw){const q=raw.toLowerCase();let answer;
+if(/hello|hi jarvis|hey jarvis/.test(q))answer="Hello. JARVIS systems are online. How may I assist you?";
+else if(/your name|who are you/.test(q))answer="I am JARVIS. Just a Rather Very Intelligent System. Well, a prototype so far.";
+else if(/time/.test(q))answer="The time on your device is "+new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+".";
+else if(/date|day is it/.test(q))answer="Today is "+new Date().toLocaleDateString([], {weekday:"long",month:"long",day:"numeric"})+".";
+else if(/what can you do|help|commands/.test(q))answer="For now, I can greet you, tell you the time and date, and speak responses. My full AI brain is still being developed.";
+else if(/thank/.test(q))answer="You're welcome.";
+else if(/stop|quiet|silence/.test(q)){speechSynthesis.cancel();status.textContent="SYSTEM ONLINE · READY";message.textContent="Voice output stopped.";return}
+else answer="I heard you say: "+raw+". My connected AI brain is still under construction, but voice input is working.";
+speak(answer)}
+const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+talk.addEventListener("click",()=>{if(!SpeechRecognition){message.textContent="Speech recognition is unavailable in this browser. Try Chrome on Android, or use Test Voice.";return}
+const rec=new SpeechRecognition();rec.lang="en-US";rec.interimResults=false;rec.maxAlternatives=1;rec.onstart=()=>{status.textContent="LISTENING · SPEAK NOW";dot.style.background="#ffcf63";talk.disabled=true};rec.onresult=e=>{const heard=e.results[0][0].transcript;message.textContent="You: "+heard;reply(heard)};rec.onerror=e=>{status.textContent="SYSTEM ONLINE · READY";message.textContent=e.error==="not-allowed"?"Microphone permission was blocked. Allow it in Chrome site settings.":"I couldn't hear that. Tap Talk to JARVIS and try again.";dot.style.background="#ffcf63"};rec.onend=()=>{talk.disabled=false;if(status.textContent==="LISTENING · SPEAK NOW")status.textContent="SYSTEM ONLINE · READY";dot.style.background="#7bffbe"};try{rec.start()}catch(err){talk.disabled=false;message.textContent="Please wait a moment and tap again."}});
+document.querySelector("#voice").addEventListener("click",()=>speak("Hello. JARVIS interface is online. Voice output is operational."));
+document.querySelector("#about").addEventListener("click",()=>{message.textContent="Version 2.0.1: responsive interface, speech output, experimental browser speech recognition, and simple offline replies. AI service not connected.";});
+if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script></body></html>
