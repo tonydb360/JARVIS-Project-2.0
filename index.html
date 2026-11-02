@@ -12,6 +12,9 @@
 *{box-sizing:border-box}body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% 35%,#103047 0,#061521 48%,#02080d 100%);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#dffaff;display:flex;align-items:center;justify-content:center;padding:22px}
 .app{width:min(760px,100%);text-align:center}.top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:.7rem;letter-spacing:.15em}
 h1{font-weight:300;letter-spacing:.2em;margin:20px 0 4px;font-size:clamp(1.6rem,5vw,2.7rem);text-shadow:0 0 22px #28bce855}h1 span{color:var(--cyan)}.sub{color:var(--muted);letter-spacing:.13em;font-size:.72rem}
+.orb-wrap{width:min(390px,90vw);height:min(390px,90vw);margin:14px auto;position:relative;touch-action:none;filter:drop-shadow(0 0 14px #ff9a2840)}
+#jarvisOrb{width:100%;height:100%;display:block;touch-action:none}
+.orb-caption{font-size:.68rem;color:#86a9b7;letter-spacing:.12em;margin-top:-4px}
 .reactor{width:min(230px,58vw);aspect-ratio:1;margin:22px auto;position:relative;display:grid;place-items:center}.ring{position:absolute;border:1px solid #55eaff38;border-radius:50%;inset:5%;box-shadow:0 0 25px #25cfff12,inset 0 0 22px #25cfff10}.ring:before,.ring:after{content:"";position:absolute;border:1px solid #55eaff55;border-radius:50%;inset:12%;border-left-color:transparent;border-right-color:transparent;animation:spin 12s linear infinite}.ring:after{inset:24%;border-color:#1689bd99;border-top-color:transparent;animation-direction:reverse;animation-duration:8s}.core{width:35%;aspect-ratio:1;border-radius:50%;border:2px solid var(--cyan);background:radial-gradient(circle,#8ffaff 0,#20b9e8 24%,#07618d 55%,#031b2a 75%);box-shadow:0 0 22px #39dfff99,0 0 70px #1689bd44}
 @keyframes spin{to{transform:rotate(360deg)}}.status{border:1px solid #23556a;background:#081e2dbb;padding:12px;border-radius:10px;display:flex;justify-content:center;gap:12px;align-items:center;color:#a8e7f1;font-size:.85rem}.dot{width:8px;height:8px;border-radius:50%;background:#7bffbe;box-shadow:0 0 10px #7bffbe}.voicebox{border:1px solid #23556a;background:#061724bb;border-radius:12px;padding:14px;margin:14px auto;max-width:520px;display:grid;gap:10px}.voicebox label{font-size:.72rem;letter-spacing:.15em;color:var(--muted)}select{width:100%;background:#082338;color:#dffaff;border:1px solid #2c9fc5;border-radius:8px;padding:12px;font:inherit}.voicehint{margin:0;color:#83aab9;font-size:.78rem;line-height:1.4}
 .actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px 0}button{background:#082338;border:1px solid #2c9fc5;color:var(--cyan);padding:12px 18px;border-radius:8px;font:inherit;font-size:.9rem;letter-spacing:.06em;cursor:pointer}button:active{background:#10435b}button:focus-visible{outline:2px solid white;outline-offset:3px}button[disabled]{opacity:.55;cursor:wait}.note{color:#91b4c1;font-size:.86rem;line-height:1.5;margin:16px auto;max-width:540px;min-height:2.5em}.foot{margin-top:24px;color:#446878;font-size:.65rem;letter-spacing:.14em}
@@ -21,7 +24,7 @@ h1{font-weight:300;letter-spacing:.2em;margin:20px 0 4px;font-size:clamp(1.6rem,
 <body><main class="app">
 <div class="top"><span>PERSONAL AI INTERFACE</span><span>BUILD 2.0.1</span></div>
 <h1>J.A.R.V.I.S. <span>2.0</span></h1><div class="sub">JUST A RATHER VERY INTELLIGENT SYSTEM</div>
-<div class="reactor" aria-label="Animated blue reactor"><div class="ring"></div><div class="core"></div></div>
+<div class="orb-wrap" id="orbTouchArea"><canvas id="jarvisOrb" aria-label="Interactive 3D holographic orb"></canvas></div><div class="orb-caption">TOUCH &amp; DRAG TO ROTATE · PINCH TO ZOOM</div>
 <div class="status"><span class="dot" id="dot"></span><span id="status" aria-live="polite">SYSTEM ONLINE · READY</span></div>
 <div class="voicebox"><label for="voiceChoice">JARVIS VOICE PROFILE</label><select id="voiceChoice">
 <option value="classic">CLASSIC JARVIS — low &amp; measured</option>
@@ -32,6 +35,48 @@ h1{font-weight:300;letter-spacing:.2em;margin:20px 0 4px;font-size:clamp(1.6rem,
 <p class="note" id="message" aria-live="polite">Voice prototype: try saying “Hello JARVIS”, “What time is it?”, or “What can you do?”</p>
 <div class="foot">DESIGNED FOR YOUR DEVICE · PWA FOUNDATION</div>
 </main>
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
+const canvas=document.querySelector("#jarvisOrb"),host=document.querySelector("#orbTouchArea");
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.position.set(0,0,7);
+const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(host.clientWidth,host.clientHeight,false);
+const root=new THREE.Group();scene.add(root);
+const amber=0xffa52b, gold=0xffd27a, dim=0x9b4d12;
+const additive=new THREE.LineBasicMaterial({color:amber,transparent:true,opacity:.62,blending:THREE.AdditiveBlending,depthWrite:false});
+const soft=new THREE.LineBasicMaterial({color:dim,transparent:true,opacity:.22,blending:THREE.AdditiveBlending,depthWrite:false});
+const sphere=new THREE.Mesh(new THREE.SphereGeometry(1.55,32,24),new THREE.MeshBasicMaterial({color:amber,wireframe:true,transparent:true,opacity:.08}));
+root.add(sphere);
+for(let i=-10;i<=10;i++){
+ const lat=i*Math.PI/22, pts=[];
+ for(let j=0;j<=160;j++){const a=j*Math.PI*2/160;pts.push(new THREE.Vector3(1.55*Math.cos(lat)*Math.cos(a),1.55*Math.sin(lat),1.55*Math.cos(lat)*Math.sin(a)))}
+ root.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),i%2===0?additive:soft));
+}
+for(let i=0;i<18;i++){
+ const lon=i*Math.PI*2/18,pts=[];
+ for(let j=0;j<=120;j++){const lat=j*Math.PI/120-Math.PI/2;pts.push(new THREE.Vector3(1.56*Math.cos(lat)*Math.cos(lon),1.56*Math.sin(lat),1.56*Math.cos(lat)*Math.sin(lon)))}
+ root.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),i%3===0?additive:soft));
+}
+const rings=[];
+for(let i=0;i<3;i++){const mesh=new THREE.Mesh(new THREE.TorusGeometry(1.85+i*.12,.006,4,180),new THREE.MeshBasicMaterial({color:i===1?gold:amber,transparent:true,opacity:.65,blending:THREE.AdditiveBlending}));mesh.rotation.set(.6+i*.75,.25+i*.5,.4);root.add(mesh);rings.push(mesh)}
+const core=new THREE.Mesh(new THREE.IcosahedronGeometry(.38,2),new THREE.MeshBasicMaterial({color:gold,wireframe:true,transparent:true,opacity:.95}));root.add(core);
+const glow=new THREE.Mesh(new THREE.SphereGeometry(.22,20,20),new THREE.MeshBasicMaterial({color:gold}));root.add(glow);
+const starsGeo=new THREE.BufferGeometry(),starPos=[];
+for(let i=0;i<260;i++){starPos.push((Math.random()-.5)*7,(Math.random()-.5)*7,(Math.random()-.5)*7)}
+starsGeo.setAttribute("position",new THREE.Float32BufferAttribute(starPos,3));
+scene.add(new THREE.Points(starsGeo,new THREE.PointsMaterial({color:amber,size:.018,transparent:true,opacity:.65,blending:THREE.AdditiveBlending})));
+let down=false,lastX=0,lastY=0,pointers=new Map(),pinchStart=0,zoom=1;
+function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
+new ResizeObserver(resize).observe(host);resize();
+host.addEventListener("pointerdown",e=>{host.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1){down=true;lastX=e.clientX;lastY=e.clientY}else if(pointers.size===2){const p=[...pointers.values()];pinchStart=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)}});
+host.addEventListener("pointermove",e=>{if(!pointers.has(e.pointerId))return;const prev=pointers.get(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1&&down){root.rotation.y+=(e.clientX-lastX)*.008;root.rotation.x+=(e.clientY-lastY)*.008;lastX=e.clientX;lastY=e.clientY}else if(pointers.size===2&&pinchStart){const p=[...pointers.values()],d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);zoom=Math.max(.65,Math.min(1.8,zoom*(d/pinchStart)));camera.position.z=7/zoom;pinchStart=d}});
+function release(e){pointers.delete(e.pointerId);if(pointers.size===0)down=false;if(pointers.size<2)pinchStart=0}
+host.addEventListener("pointerup",release);host.addEventListener("pointercancel",release);
+host.addEventListener("wheel",e=>{e.preventDefault();zoom=Math.max(.65,Math.min(1.8,zoom*(e.deltaY<0?1.08:.92)));camera.position.z=7/zoom},{passive:false});
+let frame=0;function animate(){frame=requestAnimationFrame(animate);const t=performance.now()*.001;root.rotation.y+=.002;root.rotation.z=Math.sin(t*.22)*.04;rings.forEach((r,i)=>{r.rotation.x+=.001*(i+1);r.rotation.y-=.0015});core.rotation.x+=.009;core.rotation.y+=.013;const pulse=1+Math.sin(t*2.3)*.08;glow.scale.setScalar(pulse);renderer.render(scene,camera)}
+animate();
+</script>
 <script>
 const status=document.querySelector("#status"),message=document.querySelector("#message"),talk=document.querySelector("#talk"),dot=document.querySelector("#dot");
 const voiceChoice=document.querySelector("#voiceChoice"),voiceHint=document.querySelector("#voiceHint");
