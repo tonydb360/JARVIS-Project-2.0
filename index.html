@@ -99,23 +99,30 @@ async function getKokoro(){
  }
  return modelPromise;
 }
+let audioCtx=null;
 async function speak(text){
- if(activeAudio){activeAudio.pause();activeAudio=null}
  if(!text)return;
  try{
+  if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state!=="running")await audioCtx.resume();
   status.textContent="PREPARING GEORGE";
+  message.textContent="George is preparing your response…";
   const model=await getKokoro();
   status.textContent="GENERATING SPEECH";
   const audio=await model.generate(text,{voice:"bm_george",speed:1.0});
-  const url=URL.createObjectURL(audio.toBlob());
-  activeAudio=new Audio(url);
-  activeAudio.onended=()=>{URL.revokeObjectURL(url);activeAudio=null;status.textContent="SYSTEM ONLINE · READY"};
-  await activeAudio.play();
+  const arrayBuffer=await audio.toBlob().arrayBuffer();
+  const buffer=await audioCtx.decodeAudioData(arrayBuffer);
+  const source=audioCtx.createBufferSource();
+  source.buffer=buffer;source.connect(audioCtx.destination);
+  activeAudio=source;
+  source.onended=()=>{activeAudio=null;status.textContent="SYSTEM ONLINE · READY"};
+  source.start();
+  message.textContent="Speaking with Kokoro George.";
  }catch(err){
   console.error("Kokoro TTS error:",err);
-  status.textContent="VOICE ENGINE UNAVAILABLE";
-  voiceHint.textContent="George could not load. Check your connection and try again. Error: "+(err?.message||"unknown");
-  message.textContent="Speech engine couldn't start. Please try again.";
+  status.textContent="GEORGE VOICE ERROR";
+  voiceHint.textContent="Voice engine error: "+(err?.message||String(err));
+  message.textContent="George couldn't start. Check the message above and try again.";
  }
 }
 document.querySelector("#previewVoice").addEventListener("click",()=>speak("Good evening. All systems are operational. How may I assist you?"));
