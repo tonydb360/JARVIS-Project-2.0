@@ -34,6 +34,7 @@ h1{font-weight:300;letter-spacing:.2em;margin:20px 0 4px;font-size:clamp(1.6rem,
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
 import { KokoroTTS } from "https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/+esm";
+window.KokoroTTS=KokoroTTS;
 const canvas=document.querySelector("#jarvisOrb"),host=document.querySelector("#orbTouchArea");
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.position.set(0,0,7);
