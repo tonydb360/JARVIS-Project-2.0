@@ -99,24 +99,21 @@ async function getKokoro(){
  }
  return modelPromise;
 }
-let audioCtx=null;
+let activeAudio=null, activeAudioURL=null;
 async function speak(text){
  if(!text)return;
  try{
-  if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-  if(audioCtx.state!=="running")await audioCtx.resume();
+  if(activeAudio){activeAudio.pause();activeAudio=null}
+  if(activeAudioURL){URL.revokeObjectURL(activeAudioURL);activeAudioURL=null}
   status.textContent="PREPARING GEORGE";
   message.textContent="George is preparing your response…";
   const model=await getKokoro();
   status.textContent="GENERATING SPEECH";
-  const audio=await model.generate(text,{voice:"bm_george",speed:1.0});
-  const arrayBuffer=await audio.toBlob().arrayBuffer();
-  const buffer=await audioCtx.decodeAudioData(arrayBuffer);
-  const source=audioCtx.createBufferSource();
-  source.buffer=buffer;source.connect(audioCtx.destination);
-  activeAudio=source;
-  source.onended=()=>{activeAudio=null;status.textContent="SYSTEM ONLINE · READY"};
-  source.start();
+  const audioBlob=(await model.generate(text,{voice:"bm_george",speed:1.0})).toBlob();
+  activeAudioURL=URL.createObjectURL(audioBlob);
+  activeAudio=new Audio(activeAudioURL);
+  activeAudio.onended=()=>{activeAudio=null;if(activeAudioURL){URL.revokeObjectURL(activeAudioURL);activeAudioURL=null}status.textContent="SYSTEM ONLINE · READY"};
+  await activeAudio.play();
   message.textContent="Speaking with Kokoro George.";
  }catch(err){
   console.error("Kokoro TTS error:",err);
