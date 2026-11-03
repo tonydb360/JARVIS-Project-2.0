@@ -26,17 +26,14 @@ h1{font-weight:300;letter-spacing:.2em;margin:20px 0 4px;font-size:clamp(1.6rem,
 <h1>J.A.R.V.I.S. <span>2.0</span></h1><div class="sub">JUST A RATHER VERY INTELLIGENT SYSTEM</div>
 <div class="orb-wrap" id="orbTouchArea"><canvas id="jarvisOrb" aria-label="Interactive 3D holographic orb"></canvas></div><div class="orb-caption">TOUCH &amp; DRAG TO ROTATE · PINCH TO ZOOM</div>
 <div class="status"><span class="dot" id="dot"></span><span id="status" aria-live="polite">SYSTEM ONLINE · READY</span></div>
-<div class="voicebox"><label for="voiceChoice">JARVIS VOICE PROFILE</label><select id="voiceChoice">
-<option value="classic">CLASSIC JARVIS — low &amp; measured</option>
-<option value="british">CALM BRITISH-INSPIRED — smooth &amp; deliberate</option>
-<option value="crisp">CRISP ASSISTANT — brighter &amp; quicker</option>
-</select><button id="previewVoice" type="button">▶ PREVIEW SELECTED VOICE</button><p class="voicehint" id="voiceHint">Voices available on this device will appear here. Choose one and preview it.</p></div>
+<div class="voicebox"><label for="voiceChoice">JARVIS NEURAL VOICE</label><select id="voiceChoice"><option value="bm_george">KOKORO GEORGE — BRITISH ENGLISH</option></select><button id="previewVoice" type="button">▶ PREVIEW GEORGE</button><p class="voicehint" id="voiceHint">First use downloads the speech model to this device. Speech is generated locally; no paid API.</p></div>
 <div class="actions"><button id="talk" type="button">🎙 TALK TO JARVIS</button><button id="voice" type="button">TEST VOICE</button><button id="about" type="button">SYSTEM INFO</button></div>
 <p class="note" id="message" aria-live="polite">Voice prototype: try saying “Hello JARVIS”, “What time is it?”, or “What can you do?”</p>
 <div class="foot">DESIGNED FOR YOUR DEVICE · PWA FOUNDATION</div>
 </main>
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
+import { KokoroTTS } from "https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/+esm";
 const canvas=document.querySelector("#jarvisOrb"),host=document.querySelector("#orbTouchArea");
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.position.set(0,0,7);
@@ -80,36 +77,48 @@ animate();
 <script>
 const status=document.querySelector("#status"),message=document.querySelector("#message"),talk=document.querySelector("#talk"),dot=document.querySelector("#dot");
 const voiceChoice=document.querySelector("#voiceChoice"),voiceHint=document.querySelector("#voiceHint");
-const voiceProfiles={
- classic:{rate:0.86,pitch:0.72,label:"Classic JARVIS — low & measured"},
- british:{rate:0.84,pitch:1.02,label:"Calm British-inspired — smooth & deliberate"},
- crisp:{rate:1.02,pitch:1.18,label:"Crisp assistant — brighter & quicker"}
-};
-function selectedProfile(){return voiceProfiles[voiceChoice.value]||voiceProfiles.classic}
-const savedProfile=localStorage.getItem("jarvis2_voice_profile");
-if(savedProfile&&voiceProfiles[savedProfile])voiceChoice.value=savedProfile;
-voiceChoice.addEventListener("change",()=>{
- localStorage.setItem("jarvis2_voice_profile",voiceChoice.value);
- voiceHint.textContent="Profile saved on this device. Tap Preview to compare its sound.";
-});
-function sayWithSelectedVoice(text){
- if(!("speechSynthesis"in window)){message.textContent="Speech synthesis isn't available in this browser.";return}
- speechSynthesis.cancel();
- const p=selectedProfile(),u=new SpeechSynthesisUtterance(text);
- u.rate=p.rate;u.pitch=p.pitch;
- u.onstart=()=>status.textContent="JARVIS SPEAKING";
- u.onend=()=>status.textContent="SYSTEM ONLINE · READY";
- speechSynthesis.speak(u);
+let kokoro=null, modelPromise=null, activeAudio=null;
+const voiceChoice=document.querySelector("#voiceChoice"),voiceHint=document.querySelector("#voiceHint");
+async function getKokoro(){
+ if(kokoro)return kokoro;
+ if(!modelPromise){
+  modelPromise=(async()=>{
+   status.textContent="LOADING GEORGE · FIRST RUN";
+   voiceHint.textContent="Downloading Kokoro speech model. Keep this page open; later launches should reuse the browser cache.";
+   const model=await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX",{
+    dtype:"q8",device:navigator.gpu?"webgpu":"wasm",
+    progress_callback:(p)=>{
+     if(p&&typeof p.progress==="number")voiceHint.textContent="Loading speech model · "+Math.round(p.progress)+"%";
+    }
+   });
+   kokoro=model;
+   voiceHint.textContent="George is ready. Speech is synthesized on your device.";
+   status.textContent="SYSTEM ONLINE · READY";
+   return model;
+  })().catch(err=>{modelPromise=null;throw err});
+ }
+ return modelPromise;
 }
-document.querySelector("#previewVoice").addEventListener("click",()=>sayWithSelectedVoice("Good evening. All systems are operational. How may I assist you?"));
-function speak(text){
- if(!("speechSynthesis"in window)){message.textContent=text;return}
- speechSynthesis.cancel();const p=selectedProfile(),u=new SpeechSynthesisUtterance(text);
- u.rate=p.rate;u.pitch=p.pitch;
- u.onstart=()=>status.textContent="JARVIS SPEAKING";
- u.onend=()=>{status.textContent="SYSTEM ONLINE · READY";dot.style.background="#7bffbe"};
- speechSynthesis.speak(u);message.textContent=text
+async function speak(text){
+ if(activeAudio){activeAudio.pause();activeAudio=null}
+ if(!text)return;
+ try{
+  status.textContent="PREPARING GEORGE";
+  const model=await getKokoro();
+  status.textContent="GENERATING SPEECH";
+  const audio=await model.generate(text,{voice:"bm_george",speed:1.0});
+  const url=URL.createObjectURL(audio.toBlob());
+  activeAudio=new Audio(url);
+  activeAudio.onended=()=>{URL.revokeObjectURL(url);activeAudio=null;status.textContent="SYSTEM ONLINE · READY"};
+  await activeAudio.play();
+ }catch(err){
+  console.error("Kokoro TTS error:",err);
+  status.textContent="VOICE ENGINE UNAVAILABLE";
+  voiceHint.textContent="George could not load. Check your connection and try again. Error: "+(err?.message||"unknown");
+  message.textContent="Speech engine couldn't start. Please try again.";
+ }
 }
+document.querySelector("#previewVoice").addEventListener("click",()=>speak("Good evening. All systems are operational. How may I assist you?"));
 function reply(raw){const q=raw.toLowerCase();let answer;
 if(/hello|hi jarvis|hey jarvis/.test(q))answer="Hello. JARVIS systems are online. How may I assist you?";
 else if(/your name|who are you/.test(q))answer="I am JARVIS. Just a Rather Very Intelligent System. Well, a prototype so far.";
