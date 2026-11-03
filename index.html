@@ -85,7 +85,7 @@ async function getKokoro(){
   modelPromise=(async()=>{
    status.textContent="LOADING GEORGE · FIRST RUN";
    voiceHint.textContent="Downloading Kokoro speech model. Keep this page open; later launches should reuse the browser cache.";
-   const model=await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX",{
+   const model=await window.KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX",{
     dtype:"q8",device:navigator.gpu?"webgpu":"wasm",
     progress_callback:(p)=>{
      if(p&&typeof p.progress==="number")voiceHint.textContent="Loading speech model · "+Math.round(p.progress)+"%";
