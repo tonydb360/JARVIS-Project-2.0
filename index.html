@@ -109,7 +109,7 @@ async function speak(text){
   message.textContent="George is preparing your response…";
   const model=await getKokoro();
   status.textContent="GENERATING SPEECH";
-  const audioBlob=(await model.generate(text,{voice:"bm_george",speed:1.0})).toBlob();
+  const audioBlob=(await model.generate(text,{voice:"bm_george",speed:0.5})).toBlob();
   activeAudioURL=URL.createObjectURL(audioBlob);
   activeAudio=new Audio(activeAudioURL);
   activeAudio.onended=()=>{activeAudio=null;if(activeAudioURL){URL.revokeObjectURL(activeAudioURL);activeAudioURL=null}status.textContent="SYSTEM ONLINE · READY"};
