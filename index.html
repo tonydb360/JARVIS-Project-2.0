@@ -78,7 +78,7 @@ animate();
 <script>
 const status=document.querySelector("#status"),message=document.querySelector("#message"),talk=document.querySelector("#talk"),dot=document.querySelector("#dot");
 const voiceChoice=document.querySelector("#voiceChoice"),voiceHint=document.querySelector("#voiceHint");
-let kokoro=null, modelPromise=null, activeAudio=null;
+let kokoro=null, modelPromise=null;
 async function getKokoro(){
  if(kokoro)return kokoro;
  if(!modelPromise){
