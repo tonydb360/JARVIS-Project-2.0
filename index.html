@@ -76,6 +76,28 @@ let frame=0;function animate(){frame=requestAnimationFrame(animate);const now=pe
 animate();
 </script>
 <script>
+/* JARVIS startup diagnostics: visible even if the app scripts fail */
+(function(){
+ const box=document.createElement("div");
+ box.id="jarvisDiagnostics";
+ box.style.cssText="position:fixed;z-index:99999;left:8px;right:8px;bottom:8px;background:#240b12;color:#ffd8df;border:1px solid #ff536b;border-radius:8px;padding:10px;font:12px monospace;white-space:pre-wrap;display:none;max-height:35vh;overflow:auto";
+ document.body.appendChild(box);
+ function report(label,detail){
+   box.style.display="block";
+   box.textContent="JARVIS DEBUG — "+label+"\\n"+String(detail||"").slice(0,1200);
+ }
+ window.addEventListener("error",e=>report("SCRIPT ERROR",e.message+"\\n"+(e.filename||"")+" : "+e.lineno+":"+e.colno));
+ window.addEventListener("unhandledrejection",e=>report("PROMISE ERROR",e.reason?.stack||e.reason?.message||String(e.reason)));
+ window.addEventListener("DOMContentLoaded",()=>{
+   setTimeout(()=>{
+     const ids=["previewVoice","talk","voice","about"];
+     const missing=ids.filter(id=>!document.getElementById(id));
+     if(missing.length)report("MISSING ELEMENTS",missing.join(", "));
+   },1000);
+ });
+})();
+</script>
+<script>
 const status=document.querySelector("#status"),message=document.querySelector("#message"),talk=document.querySelector("#talk"),dot=document.querySelector("#dot");
 const voiceChoice=document.querySelector("#voiceChoice"),voiceHint=document.querySelector("#voiceHint");
 let kokoro=null, modelPromise=null;
